@@ -11,7 +11,7 @@ Install Flow with docker:
 https://flow.readthedocs.io/en/latest/flow_setup.html#remote-installation-using-docker  
 Make sure you are able to access the virtual machine through your browser. Instructions in the link provided.
 
-After opening a terminal window in your browser, do  
+After opening a terminal window on the virtual machine through your browser, do  
 `cd flow`  
 `git pull`  
 
