@@ -83,7 +83,7 @@ class OSMTrafficEnvironment(Env):
         #     'velocities': np.zeros((self.steps, self.k.vehicle.num_vehicles)),
         #     'positions': np.zeros((self.steps, self.k.vehicle.num_vehicles))
         # }
-        self.node_mapping = scenario.get_node_mapping()
+        # self.node_mapping = scenario.get_node_mapping()
 
         # keeps track of the last time the light was allowed to change.
         # self.last_change = np.zeros((self.rows * self.cols, 3))
