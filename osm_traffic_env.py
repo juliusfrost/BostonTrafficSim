@@ -457,3 +457,5 @@ class OSMTrafficTestEnvironment(OSMTrafficEnvironment):
     def compute_reward(self, rl_actions, **kwargs):
         """No return, for testing purposes."""
         return 0
+
+
