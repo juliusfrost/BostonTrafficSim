@@ -442,3 +442,18 @@ class OSMTrafficEnvironment(Env):
                 key=lambda veh_id: self.get_distance_to_intersection(veh_id))
             dists += dist[:k]
         return dists
+
+
+class OSMTrafficTestEnvironment(OSMTrafficEnvironment):
+    """
+    Class that overrides RL methods of OSMTrafficEnvironment so we can test
+    construction without needing to specify RL methods
+    """
+
+    def _apply_rl_actions(self, rl_actions):
+        """See class definition."""
+        pass
+
+    def compute_reward(self, rl_actions, **kwargs):
+        """No return, for testing purposes."""
+        return 0
