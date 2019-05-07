@@ -1,5 +1,7 @@
 from flow.controllers.base_routing_controller import BaseRouter
 
+import random
+
 class OSMRouter(BaseRouter):
     """A router used to continuously re-route vehicles in osm scenario.
 
