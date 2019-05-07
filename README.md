@@ -14,6 +14,8 @@ Make sure you are able to access the virtual machine through your browser. Instr
 After opening a terminal window on the virtual machine through your browser, do  
 `cd flow`  
 `git pull`  
+`pip install -e .`  
+This will update flow to the latest version.
 
 Then go back to the home directory and clone this repository  
 `cd ..`  
