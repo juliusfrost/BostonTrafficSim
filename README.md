@@ -12,7 +12,7 @@ https://flow.readthedocs.io/en/latest/flow_setup.html#remote-installation-using-
 Make sure you are able to access the virtual machine through your browser. Instructions in the link provided.
 
 After opening a terminal window in your browser, do  
-`cd flow`
+`cd flow`  
 `git pull`  
 
 Then go back to the home directory and clone this repository  
