@@ -29,7 +29,5 @@ class OSMRouter(BaseRouter):
         else:
             next_route = None
 
-        if veh_edge in ['e_37', 'e_51']:
-            next_route = [veh_edge, 'e_29_u', 'e_21']
 
         return next_route
