@@ -14,6 +14,7 @@ Make sure you are able to access the virtual machine through your browser. Instr
 After opening a terminal window on the virtual machine through your browser, do  
 `cd flow`  
 `git pull`  
+`source activate flow`  
 `pip install -e .`  
 This will update flow to the latest version.
 
