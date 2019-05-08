@@ -104,7 +104,25 @@ class OSMTrafficEnvironment(Env):
         self.traffic_lights = self.k.traffic_light.get_ids()
         # number of traffic lights
         self.num_traffic_lights = len(self.traffic_lights)
+        # self.num_lights = 0
+        # # assign each light an index, each node has a range of indicies assigned
+        # self.light_index = dict()
+        # for node_id in self.traffic_lights:
+        #     try:
+        #         # try to get the state (a string of r,y,g lights)
+        #         # each traffic light has a number of lights it can control
+        #         state = self.k.traffic_light.get_state(node_id)
+        #         self.num_lights += len(state)
+        #         # for each node assign a range of lights, (inclusive, exclusive)
+        #         self.light_index.update({ node_id: (self.num_lights - len(state), self.num_lights) })
+        #     except:
+        #         # this should not happen and only does because there is a bug in the recent version of flow
+        #         print('could not find state for node', node_id)
+        #         self.traffic_lights.remove(node_id)
+        # print('num_lights', self.num_lights)
 
+        # keeps track of the last time the light was allowed to change.
+        self.last_change = np.zeros((self.num_traffic_lights, 3))
 
         # each traffic light is assigned an index
         # dictionaries that convert an trafic light id to an index and reverse
@@ -118,30 +136,16 @@ class OSMTrafficEnvironment(Env):
 
 
         # if the traffic lights are controlled by RL, set their beginning state
-        if self.tl_type == 'controlled':
-            for node_id in self.traffic_lights:
-                if len(self.tl_distribution) == 0 or tl_id in self.tl_distribution:
-                    state = self.k.traffic_light.get_state(node_id)
-                    # make all lights green
-                    state = 'g' * len(state)
-                    self.k.traffic_light.set_state(
-                        node_id=node_id, 
-                        state=state)
+        # if self.tl_type == 'controlled':
+        #     for node_id in self.traffic_lights:
+        #         if len(self.tl_distribution) == 0 or tl_id in self.tl_distribution:
+        #             state = self.k.traffic_light.get_state(node_id)
+        #             # make all lights green
+        #             state = 'g' * len(state)
+        #             self.k.traffic_light.set_state(
+        #                 node_id=node_id, 
+        #                 state=state)
 
-        self.num_lights = 0
-        # assign each light an index, each node has a range of indicies assigned
-        self.light_index = dict()
-        for node_id in self.traffic_lights:
-            # try to get the state (a string of r,y,g lights)
-            # each traffic light has a number of lights it can control
-            state = self.k.traffic_light.get_state(node_id)
-            self.num_lights += len(state)
-            # for each node assign a range of lights, (inclusive, exclusive)
-            self.light_index.update({ node_id: (self.num_lights - len(state), self.num_lights) })
-        print('num_lights', self.num_lights)
-        
-        # keeps track of the last time the light was allowed to change.
-        self.last_change = np.zeros((self.num_lights, 3))
 
         # # Additional Information for Plotting
         # self.edge_mapping = {"top": [], "bot": [], "right": [], "left": []}
@@ -165,12 +169,12 @@ class OSMTrafficEnvironment(Env):
 
 
         if self.discrete:
-            return Discrete(2 ** self.num_lights)
+            return Discrete(2 ** self.num_traffic_lights)
         else:
             return Box(
                 low=-1,
                 high=1,
-                shape=(self.num_lights,),
+                shape=(self.num_traffic_lights,),
                 dtype=np.float32)
 
     @property
@@ -198,7 +202,7 @@ class OSMTrafficEnvironment(Env):
         traffic_lights = Box(
             low=0.,
             high=1,
-            shape=(3 * self.num_lights,),
+            shape=(3 * self.num_traffic_lights,),
             dtype=np.float32)
         return Tuple((speed, dist_to_intersec, edge_num, traffic_lights))
 
