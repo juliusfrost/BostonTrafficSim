@@ -13,7 +13,7 @@ ADDITIONAL_ENV_PARAMS = {
     "switch_time": 2.0,
     # whether the traffic lights should be actuated by sumo or RL
     # options are "controlled" and "actuated"
-    "tl_type": "controlled",
+    "tl_type": "actuated",
     # determines whether the action space is meant to be discrete or continuous
     "discrete": False,
     # list of ids for the traffic lights to be controlled via RL
@@ -112,11 +112,14 @@ class OSMTrafficEnvironment(Env):
 
         # if the traffic lights are controlled by RL, set their beginning state
         if self.tl_type == 'controlled':
-            for tl_id in self.traffic_lights:
+            for node_id in self.traffic_lights:
                 if len(self.tl_distribution) == 0 or tl_id in self.tl_distribution:
+                    state = self.k.traffic_light.get_state(node_id)
+                    # make all lights green
+                    state = 'g' * len(state)
                     self.k.traffic_light.set_state(
-                        node_id=tl_id, 
-                        state="GrGr")
+                        node_id=node_id, 
+                        state=state)
 
 
         # # Additional Information for Plotting
