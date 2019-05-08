@@ -99,7 +99,7 @@ scenario = OSMScenario(
 )
 
 # create the environment
-env = OSMTrafficTestEnvironment(
+env = OSMTrafficEnvironment(
     env_params=env_params,
     sim_params=sim_params,
     scenario=scenario
