@@ -137,20 +137,26 @@ class OSMTrafficEnvironment(Env):
     @property
     def action_space(self):
         """See class definition."""
-        # if self.discrete:
-        #     return Discrete(2 ** self.num_traffic_lights)
-        # else:
-        #     return Box(
-        #         low=-1,
-        #         high=1,
-        #         shape=(self.num_traffic_lights,),
-        #         dtype=np.float32)
         # TODO: test return value, replace with actual return value
         return Box(low=0, high=0, shape=(0,), dtype=np.float32)
+
+        
+        if self.discrete:
+            return Discrete(2 ** self.num_traffic_lights)
+        else:
+            return Box(
+                low=-1,
+                high=1,
+                shape=(self.num_traffic_lights,),
+                dtype=np.float32)
 
     @property
     def observation_space(self):
         """See class definition."""
+        # TODO: test return value, replace with actual return value
+        return Box(low=0, high=0, shape=(0,), dtype=np.float32)
+
+
         speed = Box(
             low=0,
             high=1,
@@ -172,12 +178,14 @@ class OSMTrafficEnvironment(Env):
             # TODO: find dimensions for shape
             shape=(3 * self.rows * self.cols,),
             dtype=np.float32)
-        # return Tuple((speed, dist_to_intersec, edge_num, traffic_lights))
-        # TODO: test return value, replace with actual return value
-        return Box(low=0, high=0, shape=(0,), dtype=np.float32)
+        return Tuple((speed, dist_to_intersec, edge_num, traffic_lights))
 
     def get_state(self):
         """See class definition."""
+        # TODO: test return value, replace with actual return value
+        return np.array([])
+
+
         # compute the normalizers
         max_dist = max(self.k.scenario.network.short_length,
                        self.k.scenario.network.long_length,
@@ -202,16 +210,15 @@ class OSMTrafficEnvironment(Env):
             speeds, dist_to_intersec, edges,
             self.last_change.flatten().tolist()
         ]
-        # return np.array(state)
-        # TODO: test return value, replace with actual return value
-        return np.array([])
+        return np.array(state)
 
 
     def _apply_rl_actions(self, rl_actions):
         """See class definition."""
         # TODO: test return value, replace with actual return value
-        if True: 
-            return
+        return
+
+
         # check if the action space is discrete
         if self.discrete:
             # convert single value to list of 0's and 1's
