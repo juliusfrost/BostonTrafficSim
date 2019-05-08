@@ -99,17 +99,26 @@ class OSMTrafficEnvironment(Env):
         #             node_id='center' + str(i), state="GrGr")
         #         self.last_change[i, 2] = 1
 
+        
         # list of traffic light ids
         self.traffic_lights = self.k.traffic_light.get_ids()
         # number of traffic lights
         self.num_traffic_lights = len(self.traffic_lights)
         self.num_lights = 0
+        # assign each light an index, each node has a range of indicies assigned
+        self.light_index = dict()
         for node_id in self.traffic_lights:
             try:
+                # try to get the state (a string of r,y,g lights)
+                # each traffic light has a number of lights it can control
                 state = self.k.traffic_light.get_state(node_id)
                 self.num_lights += len(state)
+                # for each node assign a range of lights, (inclusive, exclusive)
+                self.light_index.update({ node_id: (self.num_lights - len(state), self.num_lights) })
             except:
+                # this should not happen and only does because there is a bug in the recent version of flow
                 print('could not find state for node', node_id)
+                self.traffic_lights.remove(node_id)
         print('num_lights', self.num_lights)
 
         # keeps track of the last time the light was allowed to change.
@@ -120,10 +129,11 @@ class OSMTrafficEnvironment(Env):
         self.index_to_tl = dict(zip(range(self.num_traffic_lights), self.traffic_lights))
         self.tl_to_index = dict(zip(self.traffic_lights, range(self.num_traffic_lights)))
 
-        self.edges = self.k.scenario.get_edge_list()
+        self.edges = self.k.scenario.get_edge_list() + self.k.scenario.get_junction_list()
         self.num_edges = len(self.edges)
         self.edge_to_index = dict(zip(self.edges, range(self.num_edges)))
         self.index_to_edge = dict(zip(range(self.num_edges), self.edges))
+
 
         # if the traffic lights are controlled by RL, set their beginning state
         if self.tl_type == 'controlled':
@@ -202,19 +212,21 @@ class OSMTrafficEnvironment(Env):
             np.array([])
 
 
-        # compute the normalizers
-        max_dist = max(self.k.scenario.edge_length(edge) 
-            for edge in self.k.scenario.get_edge_list())
-
         # get the state arrays
         speeds = [
             self.k.vehicle.get_speed(veh_id) / self.k.scenario.max_speed()
             for veh_id in self.k.vehicle.get_ids()
         ]
+
+        # compute the normalizers
+        max_dist = max(self.k.scenario.edge_length(edge) 
+            for edge in self.k.scenario.get_edge_list())
+
         dist_to_intersec = [
             self.get_distance_to_intersection(veh_id) / max_dist
             for veh_id in self.k.vehicle.get_ids()
         ]
+
         edges = [
             self._convert_edge(self.k.vehicle.get_edge(veh_id)) /
             (self.num_edges - 1)

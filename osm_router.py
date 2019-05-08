@@ -38,6 +38,7 @@ class OSMRouter(BaseRouter):
         # if we are on the last edge of the route, then we must reroute to prevent the vehicle from stopping
         if veh_route[-1] == veh_edge:
             random_route = random.randint(0, len(veh_next_edge) - 1)
+            # if we encounter a junction, we need to get the proceeding edge
             while veh_next_edge[random_route][0][0] == not_an_edge:
                 veh_next_edge = env.k.scenario.next_edge(
                     veh_next_edge[random_route][0],
@@ -46,5 +47,5 @@ class OSMRouter(BaseRouter):
             next_route = [veh_edge, veh_next_edge[random_route][0]]
         else:
             next_route = None
-        
+
         return next_route
