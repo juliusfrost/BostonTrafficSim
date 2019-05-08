@@ -33,6 +33,7 @@ class OSMTrafficEnvironment(Env):
       options are "controlled" and "actuated"
     * discrete: determines whether the action space is meant to be discrete or
       continuous
+    * tl_distribution: which lights specifically are to be controlled with RL
 
     States
         An observation is the distance of each vehicle to its intersection, a
@@ -133,14 +134,16 @@ class OSMTrafficEnvironment(Env):
     @property
     def action_space(self):
         """See class definition."""
-        if self.discrete:
-            return Discrete(2 ** self.num_traffic_lights)
-        else:
-            return Box(
-                low=-1,
-                high=1,
-                shape=(self.num_traffic_lights,),
-                dtype=np.float32)
+        # if self.discrete:
+        #     return Discrete(2 ** self.num_traffic_lights)
+        # else:
+        #     return Box(
+        #         low=-1,
+        #         high=1,
+        #         shape=(self.num_traffic_lights,),
+        #         dtype=np.float32)
+        # TODO: test return value, replace with actual return value
+        return Box(low=0, high=0, shape=(0,), dtype=np.float32)
 
     @property
     def observation_space(self):
@@ -166,7 +169,9 @@ class OSMTrafficEnvironment(Env):
             # TODO: find dimensions for shape
             shape=(3 * self.rows * self.cols,),
             dtype=np.float32)
-        return Tuple((speed, dist_to_intersec, edge_num, traffic_lights))
+        # return Tuple((speed, dist_to_intersec, edge_num, traffic_lights))
+        # TODO: test return value, replace with actual return value
+        return Box(low=0, high=0, shape=(0,), dtype=np.float32)
 
     def get_state(self):
         """See class definition."""
@@ -194,10 +199,16 @@ class OSMTrafficEnvironment(Env):
             speeds, dist_to_intersec, edges,
             self.last_change.flatten().tolist()
         ]
-        return np.array(state)
+        # return np.array(state)
+        # TODO: test return value, replace with actual return value
+        return np.array([])
+
 
     def _apply_rl_actions(self, rl_actions):
         """See class definition."""
+        # TODO: test return value, replace with actual return value
+        if True: 
+            return
         # check if the action space is discrete
         if self.discrete:
             # convert single value to list of 0's and 1's
@@ -239,8 +250,11 @@ class OSMTrafficEnvironment(Env):
 
     def compute_reward(self, rl_actions, **kwargs):
         """See class definition."""
-        return - rewards.min_delay_unscaled(self) \
-            - rewards.boolean_action_penalty(rl_actions >= 0.5, gain=1.0)
+        # return - rewards.min_delay_unscaled(self) \
+        #     - rewards.boolean_action_penalty(rl_actions >= 0.5, gain=1.0)
+
+        # TODO: test return value, replace with actual return value
+        return 0
 
 
     # ===============================
