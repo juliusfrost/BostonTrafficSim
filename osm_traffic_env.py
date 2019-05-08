@@ -104,7 +104,7 @@ class OSMTrafficEnvironment(Env):
         # number of traffic lights
         self.num_traffic_lights = len(self.traffic_lights)
         self.num_lights = 0
-        for node_id in self.traffic_lights
+        for node_id in self.traffic_lights:
             try:
                 state = self.k.traffic_light.get_state(node_id)
                 self.num_lights += len(state)
