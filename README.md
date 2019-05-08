@@ -5,6 +5,8 @@ This project attempts to train a reinforcement learning agent in traffic simulat
 
 ## Requirements
 - [Flow](https://github.com/flow-project/flow)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- 2+ GB of space
 
 ## Installation
 Install Flow with docker:
