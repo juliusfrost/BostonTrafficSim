@@ -86,8 +86,6 @@ class OSMTrafficEnvironment(Env):
         # }
         # self.node_mapping = scenario.get_node_mapping()
 
-        # keeps track of the last time the light was allowed to change.
-        # self.last_change = np.zeros((self.rows * self.cols, 3))
 
         # when this hits min_switch_time we change from yellow to red
         # the second column indicates the direction that is currently being
@@ -105,10 +103,23 @@ class OSMTrafficEnvironment(Env):
         self.traffic_lights = self.k.traffic_light.get_ids()
         # number of traffic lights
         self.num_traffic_lights = len(self.traffic_lights)
+        self.num_lights = sum([
+            len(self.k.traffic_light.get_state(node_id)) 
+            for node_id in self.traffic_lights
+            ])
+
+        # keeps track of the last time the light was allowed to change.
+        self.last_change = np.zeros((self.num_lights, 3))
+
         # each traffic light is assigned an index
         # dictionaries that convert an trafic light id to an index and reverse
         self.index_to_tl = dict(zip(range(self.num_traffic_lights), self.traffic_lights))
         self.tl_to_index = dict(zip(self.traffic_lights, range(self.num_traffic_lights)))
+
+        self.edges = self.k.scenario.get_edge_list()
+        self.num_edges = len(edges)
+        self.edge_to_index = dict(zip(self.edges, range(self.num_edges)))
+        self.index_to_edge = dict(zip(range(self.num_edges), self.edges))
 
         # if the traffic lights are controlled by RL, set their beginning state
         if self.tl_type == 'controlled':
@@ -134,27 +145,29 @@ class OSMTrafficEnvironment(Env):
         # check whether the action space is meant to be discrete or continuous
         self.discrete = env_params.additional_params.get("discrete", False)
 
+        self.test = env_params.additional_params.get("test", False)
+
     @property
     def action_space(self):
         """See class definition."""
-        # TODO: test return value, replace with actual return value
-        return Box(low=0, high=0, shape=(0,), dtype=np.float32)
+        if self.test:
+            return Box(low=0, high=0, shape=(0,), dtype=np.float32)
 
 
         if self.discrete:
-            return Discrete(2 ** self.num_traffic_lights)
+            return Discrete(2 ** self.num_lights)
         else:
             return Box(
                 low=-1,
                 high=1,
-                shape=(self.num_traffic_lights,),
+                shape=(self.num_lights,),
                 dtype=np.float32)
 
     @property
     def observation_space(self):
         """See class definition."""
-        # TODO: test return value, replace with actual return value
-        return Box(low=0, high=0, shape=(0,), dtype=np.float32)
+        if self.test:
+            Box(low=0, high=0, shape=(0,), dtype=np.float32)
 
 
         speed = Box(
@@ -176,20 +189,19 @@ class OSMTrafficEnvironment(Env):
             low=0.,
             high=1,
             # TODO: find dimensions for shape
-            shape=(3 * self.rows * self.cols,),
+            shape=(3 * self.num_lights,),
             dtype=np.float32)
         return Tuple((speed, dist_to_intersec, edge_num, traffic_lights))
 
     def get_state(self):
         """See class definition."""
-        # TODO: test return value, replace with actual return value
-        return np.array([])
+        if self.test:
+            np.array([])
 
 
         # compute the normalizers
-        max_dist = max(self.k.scenario.network.short_length,
-                       self.k.scenario.network.long_length,
-                       self.k.scenario.network.inner_length)
+        max_dist = max(self.k.scenario.edge_length(edge) 
+            for edge in self.k.scenario.get_edge_list())
 
         # get the state arrays
         speeds = [
@@ -202,7 +214,7 @@ class OSMTrafficEnvironment(Env):
         ]
         edges = [
             self._convert_edge(self.k.vehicle.get_edge(veh_id)) /
-            (self.k.scenario.network.num_edges - 1)
+            (self.num_edges - 1)
             for veh_id in self.k.vehicle.get_ids()
         ]
 
@@ -215,8 +227,8 @@ class OSMTrafficEnvironment(Env):
 
     def _apply_rl_actions(self, rl_actions):
         """See class definition."""
-        # TODO: test return value, replace with actual return value
-        return
+        if self.test:
+            return
 
 
         # check if the action space is discrete
@@ -260,11 +272,11 @@ class OSMTrafficEnvironment(Env):
 
     def compute_reward(self, rl_actions, **kwargs):
         """See class definition."""
-        # return - rewards.min_delay_unscaled(self) \
-        #     - rewards.boolean_action_penalty(rl_actions >= 0.5, gain=1.0)
+        if self.test:
+            return 0
 
-        # TODO: test return value, replace with actual return value
-        return 0
+        return - rewards.min_delay_unscaled(self) \
+            - rewards.boolean_action_penalty(rl_actions >= 0.5, gain=1.0)
 
 
     # ===============================
@@ -368,30 +380,7 @@ class OSMTrafficEnvironment(Env):
 
     def _split_edge(self, edge):
         """Helper function for convert_edge"""
-        #TODO: get rid of grid hardcodedness and make it defined for any arbitrary node graph
-        if edge:
-            if edge[0] == ":":  # center
-                center_index = int(edge.split("center")[1][0])
-                base = ((self.cols + 1) * self.rows * 2) \
-                    + ((self.rows + 1) * self.cols * 2)
-                return base + center_index + 1
-            else:
-                pattern = re.compile(r"[a-zA-Z]+")
-                edge_type = pattern.match(edge).group()
-                edge = edge.split(edge_type)[1].split('_')
-                row_index, col_index = [int(x) for x in edge]
-                if edge_type in ['bot', 'top']:
-                    rows_below = 2 * (self.cols + 1) * row_index
-                    cols_below = 2 * (self.cols * (row_index + 1))
-                    edge_num = rows_below + cols_below + 2 * col_index + 1
-                    return edge_num if edge_type == 'bot' else edge_num + 1
-                if edge_type in ['left', 'right']:
-                    rows_below = 2 * (self.cols + 1) * row_index
-                    cols_below = 2 * (self.cols * row_index)
-                    edge_num = rows_below + cols_below + 2 * col_index + 1
-                    return edge_num if edge_type == 'left' else edge_num + 1
-        else:
-            return 0
+        return self.edge_to_index(edge)
 
     def additional_command(self):
         """Used to insert vehicles that are on the exit edge and place them
