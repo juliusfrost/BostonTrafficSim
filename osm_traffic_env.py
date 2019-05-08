@@ -104,25 +104,9 @@ class OSMTrafficEnvironment(Env):
         self.traffic_lights = self.k.traffic_light.get_ids()
         # number of traffic lights
         self.num_traffic_lights = len(self.traffic_lights)
-        # self.num_lights = 0
-        # assign each light an index, each node has a range of indicies assigned
-        # self.light_index = dict()
-        # for node_id in self.traffic_lights:
-        #     try:
-        #         # try to get the state (a string of r,y,g lights)
-        #         # each traffic light has a number of lights it can control
-        #         state = self.k.traffic_light.get_state(node_id)
-        #         self.num_lights += len(state)
-        #         # for each node assign a range of lights, (inclusive, exclusive)
-        #         self.light_index.update({ node_id: (self.num_lights - len(state), self.num_lights) })
-        #     except:
-        #         # this should not happen and only does because there is a bug in the recent version of flow
-        #         print('could not find state for node', node_id)
-        #         self.traffic_lights.remove(node_id)
-        # print('num_lights', self.num_lights)
 
         # keeps track of the last time the light was allowed to change.
-        self.last_change = np.zeros((self.num_traffic_lights, 3))
+        self.last_change = np.zeros((self.num_lights, 3))
 
         # each traffic light is assigned an index
         # dictionaries that convert an trafic light id to an index and reverse
@@ -146,6 +130,17 @@ class OSMTrafficEnvironment(Env):
                         node_id=node_id, 
                         state=state)
 
+        self.num_lights = 0
+        # assign each light an index, each node has a range of indicies assigned
+        self.light_index = dict()
+        for node_id in self.traffic_lights:
+            # try to get the state (a string of r,y,g lights)
+            # each traffic light has a number of lights it can control
+            state = self.k.traffic_light.get_state(node_id)
+            self.num_lights += len(state)
+            # for each node assign a range of lights, (inclusive, exclusive)
+            self.light_index.update({ node_id: (self.num_lights - len(state), self.num_lights) })
+        print('num_lights', self.num_lights)
 
         # # Additional Information for Plotting
         # self.edge_mapping = {"top": [], "bot": [], "right": [], "left": []}
@@ -202,10 +197,10 @@ class OSMTrafficEnvironment(Env):
         traffic_lights = Box(
             low=0.,
             high=1,
-            shape=(3 * self.num_traffic_lights,),
+            shape=(3 * self.num_lights,),
             dtype=np.float32)
         return Tuple((speed, dist_to_intersec, edge_num, traffic_lights))
- 
+
     def get_state(self):
         """See class definition."""
         if self.test:
