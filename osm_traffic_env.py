@@ -103,10 +103,13 @@ class OSMTrafficEnvironment(Env):
         self.traffic_lights = self.k.traffic_light.get_ids()
         # number of traffic lights
         self.num_traffic_lights = len(self.traffic_lights)
-        self.num_lights = sum([
-            len(self.k.traffic_light.get_state(node_id)) 
-            for node_id in self.traffic_lights
-            ])
+        self.num_lights = 0
+        for node_id in self.traffic_lights
+            try:
+                state = self.k.traffic_light.get_state(node_id)
+                self.num_lights += len(state)
+            except:
+                print('could not find state for node', node_id)
 
         # keeps track of the last time the light was allowed to change.
         self.last_change = np.zeros((self.num_lights, 3))
@@ -188,7 +191,6 @@ class OSMTrafficEnvironment(Env):
         traffic_lights = Box(
             low=0.,
             high=1,
-            # TODO: find dimensions for shape
             shape=(3 * self.num_lights,),
             dtype=np.float32)
         return Tuple((speed, dist_to_intersec, edge_num, traffic_lights))
