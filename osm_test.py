@@ -19,6 +19,7 @@ from flow.core.params import InFlows
 
 from osm_router import OSMRouter
 from osm_scenario import OSMScenario
+import osm_traffic_env
 from osm_traffic_env import OSMTrafficTestEnvironment
 
 
