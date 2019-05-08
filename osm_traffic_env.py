@@ -105,8 +105,6 @@ class OSMTrafficEnvironment(Env):
         # number of traffic lights
         self.num_traffic_lights = len(self.traffic_lights)
 
-        # keeps track of the last time the light was allowed to change.
-        self.last_change = np.zeros((self.num_lights, 3))
 
         # each traffic light is assigned an index
         # dictionaries that convert an trafic light id to an index and reverse
@@ -141,6 +139,9 @@ class OSMTrafficEnvironment(Env):
             # for each node assign a range of lights, (inclusive, exclusive)
             self.light_index.update({ node_id: (self.num_lights - len(state), self.num_lights) })
         print('num_lights', self.num_lights)
+        
+        # keeps track of the last time the light was allowed to change.
+        self.last_change = np.zeros((self.num_lights, 3))
 
         # # Additional Information for Plotting
         # self.edge_mapping = {"top": [], "bot": [], "right": [], "left": []}
