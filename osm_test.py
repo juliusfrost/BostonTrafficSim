@@ -92,7 +92,7 @@ vehicles.add('human',
 
 # create the scenario
 scenario = OSMScenario(
-    name=name,
+    name='Kenmore',
     net_params=net_params,
     initial_config=initial_config,
     vehicles=vehicles
