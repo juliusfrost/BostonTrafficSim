@@ -110,6 +110,7 @@ class OSMTrafficEnvironment(Env):
                 self.num_lights += len(state)
             except:
                 print('could not find state for node', node_id)
+        print('num_lights', self.num_lights)
 
         # keeps track of the last time the light was allowed to change.
         self.last_change = np.zeros((self.num_lights, 3))
@@ -120,7 +121,7 @@ class OSMTrafficEnvironment(Env):
         self.tl_to_index = dict(zip(self.traffic_lights, range(self.num_traffic_lights)))
 
         self.edges = self.k.scenario.get_edge_list()
-        self.num_edges = len(edges)
+        self.num_edges = len(self.edges)
         self.edge_to_index = dict(zip(self.edges, range(self.num_edges)))
         self.index_to_edge = dict(zip(range(self.num_edges), self.edges))
 
