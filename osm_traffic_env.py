@@ -140,7 +140,7 @@ class OSMTrafficEnvironment(Env):
         # TODO: test return value, replace with actual return value
         return Box(low=0, high=0, shape=(0,), dtype=np.float32)
 
-        
+
         if self.discrete:
             return Discrete(2 ** self.num_traffic_lights)
         else:
@@ -396,8 +396,9 @@ class OSMTrafficEnvironment(Env):
     def additional_command(self):
         """Used to insert vehicles that are on the exit edge and place them
         back on their entrance edge."""
-        for veh_id in self.k.vehicle.get_ids():
-            self._reroute_if_final_edge(veh_id)
+        # not needed anymore
+        # for veh_id in self.k.vehicle.get_ids():
+        #     self._reroute_if_final_edge(veh_id)
 
     def _reroute_if_final_edge(self, veh_id):
         """Checks if an edge is the final edge. If it is return the route it
