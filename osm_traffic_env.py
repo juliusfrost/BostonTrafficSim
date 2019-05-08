@@ -383,7 +383,7 @@ class OSMTrafficEnvironment(Env):
 
     def _split_edge(self, edge):
         """Helper function for convert_edge"""
-        return self.edge_to_index(edge)
+        return self.edge_to_index[edge]
 
     def additional_command(self):
         """Used to insert vehicles that are on the exit edge and place them
